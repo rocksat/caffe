@@ -1,9 +1,5 @@
-'''
-Before running this script, you should download the fully convolutional reduced (atrous) ZFNet at:
-  http://cs.unc.edu/~wliu/projects/SSD/ZF_conv_reduced.caffemodel
-By default, we assume the model is stored in `$CAFFE_ROOT/models/ZFNet/`
-'''
 from __future__ import print_function
+# set PYTHONPATH=/home/asgdemo/Workspace/ssd/python/:$PYTHONPATH
 import caffe
 from caffe.model_libs import *
 from google.protobuf import text_format
@@ -14,6 +10,7 @@ import shutil
 import stat
 import subprocess
 import sys
+from pdb import set_trace as bp
 
 # Add extra layers on top of a "base" network (e.g. VGGNet or Inception).
 def AddExtraLayers(net, use_batchnorm=True, lr_mult=1):
@@ -239,16 +236,16 @@ else:
 # Modify the job name if you want.
 job_name = "SSD_{}".format(resize)
 # The name of the model. Modify it if you want.
-model_name = "ZF_VOC0712_{}".format(job_name)
+model_name = "VGG_VOC0712_{}".format(job_name)
 
 # Directory which stores the model .prototxt file.
-save_dir = "models/ZFNet/VOC0712/{}".format(job_name)
+save_dir = "models/VGGNet/VOC0712/{}".format(job_name)
 # Directory which stores the snapshot of models.
-snapshot_dir = "models/ZFNet/VOC0712/{}".format(job_name)
+snapshot_dir = "models/VGGNet/VOC0712/{}".format(job_name)
 # Directory which stores the job script and log file.
-job_dir = "jobs/ZFNet/VOC0712/{}".format(job_name)
+job_dir = "jobs/VGGNet/VOC0712-2/{}".format(job_name)
 # Directory which stores the detection results.
-output_result_dir = "{}/data/VOCdevkit/results/VOC2007/{}/Main".format(os.environ['HOME'], job_name)
+output_result_dir = "{}/{}/data/VOCdevkit/results/VOC2007/{}/Main".format(os.environ['HOME'], 'Workspace', job_name)
 
 # model definition files.
 train_net_file = "{}/train.prototxt".format(save_dir)
@@ -262,8 +259,8 @@ job_file = "{}/{}.sh".format(job_dir, model_name)
 
 # Stores the test image names and sizes. Created by data/VOC0712/create_list.sh
 name_size_file = "data/VOC0712/test_name_size.txt"
-# The pretrained model. We use the Fully convolutional reduced (atrous) ZFNet.
-pretrain_model = "models/ZFNet/ZF_conv_reduced.caffemodel"
+# The pretrained model. We use the Fully convolutional reduced (atrous) VGGNet.
+pretrain_model = "models/VGGNet/VGG_ILSVRC_16_layers_fc_reduced.caffemodel"
 # Stores LabelMapItem.
 label_map_file = "data/VOC0712/labelmap_voc.prototxt"
 
@@ -302,13 +299,13 @@ loss_param = {
 # parameters for generating priors.
 # minimum dimension of input image
 min_dim = 300
-# conv2 ==> 38 x 38
+# conv4_3 ==> 38 x 38
 # fc7 ==> 19 x 19
 # conv6_2 ==> 10 x 10
 # conv7_2 ==> 5 x 5
 # conv8_2 ==> 3 x 3
 # conv9_2 ==> 1 x 1
-mbox_source_layers = ['conv2', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'conv9_2']
+mbox_source_layers = ['conv4_3', 'fc7', 'conv6_2', 'conv7_2', 'conv8_2', 'conv9_2']
 # in percent %
 min_ratio = 20
 max_ratio = 90
@@ -322,7 +319,7 @@ min_sizes = [min_dim * 10 / 100.] + min_sizes
 max_sizes = [min_dim * 20 / 100.] + max_sizes
 steps = [8, 16, 32, 64, 100, 300]
 aspect_ratios = [[2], [2, 3], [2, 3], [2, 3], [2], [2]]
-# L2 normalize conv2.
+# L2 normalize conv4_3.
 normalizations = [20, -1, -1, -1, -1, -1]
 # variance used to encode/decode prior bboxes.
 if code_type == P.PriorBox.CENTER_SIZE:
@@ -334,8 +331,7 @@ clip = False
 
 # Solver parameters.
 # Defining which GPUs to use.
-# gpus = "0,1,2,3"
-gpus = "0,2,3"
+gpus = "3"
 gpulist = gpus.split(",")
 num_gpus = len(gpulist)
 
@@ -432,13 +428,16 @@ make_if_not_exist(save_dir)
 make_if_not_exist(job_dir)
 make_if_not_exist(snapshot_dir)
 
+# remove it
+bp()
+
 # Create train net.
 net = caffe.NetSpec()
 net.data, net.label = CreateAnnotatedDataLayer(train_data, batch_size=batch_size_per_device,
         train=True, output_label=True, label_map_file=label_map_file,
         transform_param=train_transform_param, batch_sampler=batch_sampler)
 
-ZFNetBody(net, from_layer='data', fully_conv=True, reduced=True, dilated=True,
+VGGNetBody(net, from_layer='data', fully_conv=True, reduced=True, dilated=True,
     dropout=False)
 
 AddExtraLayers(net, use_batchnorm, lr_mult=lr_mult)
@@ -467,7 +466,7 @@ net.data, net.label = CreateAnnotatedDataLayer(test_data, batch_size=test_batch_
         train=False, output_label=True, label_map_file=label_map_file,
         transform_param=test_transform_param)
 
-ZFNetBody(net, from_layer='data', fully_conv=True, reduced=True, dilated=True,
+VGGNetBody(net, from_layer='data', fully_conv=True, reduced=True, dilated=True,
     dropout=False)
 
 AddExtraLayers(net, use_batchnorm, lr_mult=lr_mult)
@@ -540,9 +539,9 @@ for file in os.listdir(snapshot_dir):
       max_iter = iter
 
 train_src_param = '--weights="{}" \\\n'.format(pretrain_model)
-if resume_training:
-  if max_iter > 0:
-    train_src_param = '--snapshot="{}_iter_{}.solverstate" \\\n'.format(snapshot_prefix, max_iter)
+# if resume_training:
+#  if max_iter > 0:
+#    train_src_param = '--snapshot="{}_iter_{}.solverstate" \\\n'.format(snapshot_prefix, max_iter)
 
 if remove_old_models:
   # Remove any snapshots smaller than max_iter.

@@ -156,8 +156,12 @@ if __name__ == "__main__":
             resize_width, backend, shuffle, check_size, encode_type, encoded,
             gray, root_dir, list_file, out_dir)
   print cmd
-  process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
-  output = process.communicate()[0]
+
+  System.exit(0)
+
+  # remove it: update here.
+  # process = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+  # output = process.communicate()[0]
 
   if not os.path.exists(example_dir):
     os.makedirs(example_dir)
