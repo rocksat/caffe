@@ -1,0 +1,7 @@
+# gnuplot_commands
+set datafile separator ','
+set term x11 0
+plot 'jobs/ResNet/VOC0712/SSD_300x300/ResNet_VOC0712_SSD_300x300.log.train' using 1:4  with line,\
+     'jobs/ResNet/VOC0712/SSD_300x300/ResNet_VOC0712_SSD_300x300.log.test' using 1:5 with line
+set term x11 1
+plot '../my_model.log.test' using 1:4 with line

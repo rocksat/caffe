@@ -1,0 +1,11 @@
+Log file created at: 2017/08/26 13:05:21
+Running on machine: asggpgpu2
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+W0826 13:05:21.909317  4584 solver.cpp:524] Missing true_pos for label: 3
+W0827 01:41:34.601244  4584 solver.cpp:524] Missing true_pos for label: 3
+W0827 08:00:13.469873  4584 solver.cpp:524] Missing true_pos for label: 3
+W0827 14:17:47.433588  4584 solver.cpp:524] Missing true_pos for label: 3
+W0827 20:35:48.624394  4584 solver.cpp:524] Missing true_pos for label: 3
+W0828 02:54:17.022938  4584 solver.cpp:524] Missing true_pos for label: 3
+W0828 09:12:17.024152  4584 solver.cpp:524] Missing true_pos for label: 3
+F0828 12:38:18.619042  4584 syncedmem.cpp:56] Check failed: error == cudaSuccess (2 vs. 0)  out of memory

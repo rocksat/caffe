@@ -1,0 +1,1 @@
+./build/tools/caffe train --solver="models/MobileNet/BodyFaceHandRegions/solver.prototxt" --gpu 2,3 --log_dir=jobs/MobileNet/BodyFaceHandRegions --weights="models/MobileNet/ssd_mobilenet_1.0_body_face_2017_07_17/SSD_300x300-3C/MobileNet_Body_Face_SSD_300x300_iter_120000.caffemodel"

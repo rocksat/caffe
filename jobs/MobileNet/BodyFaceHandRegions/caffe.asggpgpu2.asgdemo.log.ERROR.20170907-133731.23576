@@ -1,0 +1,4 @@
+Log file created at: 2017/09/07 13:37:31
+Running on machine: asggpgpu2
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+F0907 13:37:31.314610 23576 detection_output_layer.cpp:81] Check failed: infile.good() Failed to open name size file: data/BodyFaceHandRegions/hand_test_name_size.txt

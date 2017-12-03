@@ -1,0 +1,1 @@
+./build/tools/caffe train -solver="models/BodyFaceHandRegions/solver.prototxt" --gpu 0,1 --log_dir=jobs/BodyFaceHandRegions --weights=models/BodyFaceRegions/BodyFaceRegions_300x300_iter_120000.caffemodel

@@ -1,0 +1,4 @@
+Log file created at: 2017/08/28 13:26:12
+Running on machine: asggpgpu2
+Log line format: [IWEF]mmdd hh:mm:ss.uuuuuu threadid file:line] msg
+F0828 13:26:12.769768 19222 caffe.cpp:182] Check failed: !FLAGS_snapshot.size() || !FLAGS_weights.size() Give a snapshot to resume training or weights to finetune but not both.
