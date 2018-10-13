@@ -68,37 +68,18 @@ class NCCL : public GPUParams<Dtype>,
              public Solver<Dtype>::Callback,
              public Net<Dtype>::Callback {
  public:
-  /**
-   * Single process version.
-   */
-  explicit NCCL(shared_ptr<Solver<Dtype> > solver);
-  /**
-   * In multi-process settings, first create a NCCL id (new_uid), then
-   * pass it to each process to create connected instances.
-   */
-  NCCL(shared_ptr<Solver<Dtype> > solver, const string& uid);
-  ~NCCL();
+  explicit P2PSync(shared_ptr<Solver<Dtype> > root_solver,
+                   P2PSync<Dtype>* parent, const SolverParameter& param);
+  virtual ~P2PSync();
 
-  boost::barrier* barrier();
-  void set_barrier(boost::barrier* value);
+  inline const shared_ptr<Solver<Dtype> >& solver() const {
+    return solver_;
+  }
 
-  /**
-   * In single process settings, create instances without uids and
-   * call this to connect them.
-   */
-  static void InitSingleProcess(vector<NCCL<Dtype>*>* nccls);
-
-  static string new_uid();
-
-  /**
-   * Broadcast weights from rank 0 other solvers.
-   */
-  void Broadcast();
-
-  /**
-   * Single process multi-GPU.
-   */
-  void Run(const vector<int>& gpus, const char* restore);
+  void Run(const vector<int>& gpus);
+  void Prepare(const vector<int>& gpus,
+               vector<shared_ptr<P2PSync<Dtype> > >* syncs);
+  inline int initial_iter() const { return initial_iter_; }
 
  protected:
   void Init();
